@@ -11,8 +11,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:false}));
 app.use(cors())
 app.use(express.static('public'));
-app.use("public",express.static(__dirname + "/public"));
-
+app.use("public",express.static(process.cwd() + "/public"));
+app.get('/', (req, res) => {
+  res.sendFile(process.cwd() + '/views/index.html')
+});
 
 
 
@@ -41,9 +43,7 @@ const exerciseSchema = new mongoose.Schema({
 });
 const Exercise = mongoose.model("Exercise",exerciseSchema);
 
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html')
-});
+
 
 
 app.post('/api/users', function(req, res, done){

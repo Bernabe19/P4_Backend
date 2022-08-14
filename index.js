@@ -83,36 +83,41 @@ app.post('/api/users/:_id/exercises', function(req, res, done){
   });
 });
 
-app.get('/api/users/:_id/logs/:from?/:to?/:limit?',function(req,res){
+app.get('/api/users/:_id/logs',function(req,res){
   let userId = req.params._id;
-  let from = req.params.from;
-  let to = req.params.to;
+  let from = req.query.from;
+  let to = req.query.to;
   let limit = parseInt(req.query.limit);
-  console.log(limit);
-  User.findById({_id:ObjectId(userId)},function(err, user){
+  //console.log(typeof(from),typeof(to),limit);
+  User.findById(req.params._id,function(err, user){
     if(err){console.log(err); return err;}
     let username = user.username;
     Exercise.find({user:userId},function(err,exercise){
       if(err){console.log(err); return err;}
-      
       let log = [];
         for(let e of exercise){
           log.push({description:e.description,duration:e.duration,date:new Date(e.date).toDateString()});
         }
-        if(limit!="NaN"){
+        //console.log(log);
+        if(from || to){
           let fin = 0;
-          console.log(log);
           while(fin < log.length){
+            console.log(log[fin].date);
+            console.log(from,to);
+            
             if(new Date(log[fin].date) < new Date(from) || new Date(log[fin].date) > new Date(to)){
               log.splice(fin,1);
-              console.log(log);
             }
             fin++;
           }
-          log.slice(0,limit);
+        }
+        if(limit){
+          console.log(limit);
+          log.splice(limit,log.length);
+        }
+        console.log(log);
           let count = log.length;
           res.json({_id:userId,username:username,count:count,log:log});   
-      }
     });  
   });
 });
